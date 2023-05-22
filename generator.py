@@ -1,10 +1,44 @@
 #!/usr/bin/env python3
+from numbers import Rational
 import sys
 import sympy as sp
 import numpy as np
 a,b ,c, d,e = sp.symbols("a, b, c, d,e")
 
 
+
+def getrandomint(n):
+    ret = 0
+    while ret ==0:
+        ret = np.random.randint(-n,n)
+    return ret
+
+def getunimodularmatrix(n):
+    upmatrix = np.zeros((n,n), dtype=np.int8)
+    downmatrix = np.zeros((n,n), dtype = np.int8)
+    for i in range(n): 
+        upmatrix[i][i]=1
+        downmatrix[i][i]=1
+        for j in range(i): 
+            upmatrix[i][j]=  getrandomint(4)
+            downmatrix[j][i] = getrandomint(4)
+    upmatrix = sp.Matrix(upmatrix)
+    downmatrix = sp.Matrix(downmatrix)
+    retmatrix =upmatrix * downmatrix
+   
+    return retmatrix
+
+def getdiagonalmatrix(n):
+    matrix = np.zeros((n,n),dtype = np.int8)
+    if n <=2:
+        for i in range(n):
+            matrix[i][i] = getrandomint(7)
+        return matrix
+    for i in range(n-2):
+        matrix[i][i]=np.random.randint(-1,1)
+    for i in range(n-1,n):        
+        matrix[i][i]= getrandomint(7)
+    return matrix
 
 def getvarvector(n):
     match n:
@@ -39,6 +73,37 @@ def Sole(Difficulty): #System of linear equations
     solution = "$" + sp.latex(varvector) + "=" + sp.latex(vector) + "$ \n"
     return exercise, solution
 
+def eigenvalues(Difficulty): #Characteristical polynom, eigenvalues, eigenvectors
+    solution = ""
+    exercise = ""
+    n = Difficulty +1
+    while True:
+        Tmatrix = getunimodularmatrix(n)
+        invTmatrix= Tmatrix.inv()
+        diagonal = getdiagonalmatrix(n)
+        A = Tmatrix*diagonal*invTmatrix
+        if np.max(np.abs(A))<30:
+            break
+    exercise = "$"+ sp.latex(A) + "$"
+    lamda = sp.symbols('lamda')
+    p = A.charpoly(lamda).as_expr()
+    solution += "$ \\chi(\\lambda )= " + sp.latex(p) +"$ \\\ \n"
+    lam= A.eigenvals()
+    solution += "$\lambda = "+ sp.latex(lam) +" $ \\\ \n"
+    eigenvecs = A.eigenvects()
+    solution += "$"+sp.latex(eigenvecs)+"$ \\\ \n"
+
+    return exercise, solution
+
+
+def recursion(): #Recursion equation => Make closed equation
+    solution = ""
+    exercise = ""
+    matrix = np.zeros(2,2, dtype=np.int8)
+    matrix[0][0]=getrandomint(10)
+    matrix[0][1]=getrandomint(10)
+    matrix[1][0]=1
+    return exercise,solution       
 
 
 def choseexercise(exercise,Difficulty):
@@ -51,13 +116,21 @@ def choseexercise(exercise,Difficulty):
     match exercise:
         case "sole":
             retexercise, retsolution = Sole(Difficulty)
+        case "eval":
+            retexercise, retsolution = eigenvalues(Difficulty)
     return retexercise,retsolution
 
 def getfullname(exercise):
+    retname = exercise
+    retdescription =""
     match exercise:
         case "sole":
-            return "System of linear equations"
-    return exercise
+            retname = "System of linear equations"
+            retdescription = "Solve the linear equations."
+        case "eval":
+            retname = "Eigenvalue problem"
+            retdescription = "Determine the characteristical polynom, the eigenvalues and the eigenvectors"    
+    return retname, retdescription
     
 
 def getExercise(exercise, Difficulty, Number):
@@ -65,12 +138,14 @@ def getExercise(exercise, Difficulty, Number):
     retexercise = ""
     if len(exercise) ==0:
         return retexercise, retsolution
-    name = getfullname(exercise) + " Difficulty: " + str(Difficulty)
-    retexercise += "\\subsection{"+name+"} \n"
+    name, Description = getfullname(exercise) 
+    name += "; Difficulty: " + str(Difficulty)
+    retexercise += "\\subsection{"+name+"}  \n"
+    retexercise += Description + " \n"
     retsolution += "\\subsection{"+name+"} \n"
 
     for i in range(Number):
-        retexercise += "\\subsubsection{" "} \n"
+        retexercise += "\\subsubsection{" "}  \n"
         retsolution += "\\subsubsection{" "} \n"
         ex,sol =choseexercise(exercise,Difficulty)
         retexercise +=ex
