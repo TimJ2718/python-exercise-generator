@@ -99,47 +99,64 @@ def eigenvalues(Difficulty): #Characteristical polynom, eigenvalues, eigenvector
 def recursion(): #Recursion equation => Make closed equation
     solution = ""
     exercise = ""
-    matrix = np.zeros((2,2), dtype=np.int8)
-    eval1 = getrandomint(4)
-    eval2 = getrandomint(4)
-    #Ensure eigenvalues are ganzzahlig
-    p = -(eval1 +eval2)
-    q = eval1* eval2
-    matrix[0][0]= -p
-    matrix[0][1]= -q
-    matrix[1][0]=1
-
+    while True:
+        matrix = np.zeros((2,2), dtype=np.int8)
+        eval1 = getrandomint(4)
+        eval2 = getrandomint(4)
+        #Ensure eigenvalues are ganzzahlig
+        p = -(eval1 +eval2)
+        q = eval1* eval2
+        matrix[0][0]= -p
+        matrix[0][1]= -q
+        matrix[1][0]=1
+        
+        if sp.Matrix(matrix).is_diagonalizable() and p !=0:
+            break
     if np.random.randint(2):
-        exercise += "$a_n = " + str(matrix[0][0])  + "+ a_{n-1}" +str(matrix[0][1]) + "a_{n-2} $ \\\ \n"
+        exercise += "$a_n = " + str(matrix[0][0])  + " a_{n-1} +" +str(matrix[0][1]) + "a_{n-2} $ \\\ \n"
     else:
-        exercise += "$a_{n+1} = " + str(matrix[0][0])  + "+ a_{n}" +str(matrix[0][1]) + "a_{n-1} $ \\\ \n"
+        exercise += "$a_{n+1} = " + str(matrix[0][0])  + "a_{n} +" +str(matrix[0][1]) + "a_{n-1} $ \\\ \n"
     matrix = sp.Matrix(matrix)
     case = np.random.randint(2)
     a0 = getrandomint(4)
     a1 = getrandomint(4)
     if case:
-        exercise += "$a_0 ="+str(a0)+" \\;\\;\\;\\;\\; a_1 = "+str(a1) +"$ \\\ \n"
+        exercise += "$a_0 ="+str(a0)+"; \\;\\;\\;\\;\\;  a_1 = "+str(a1) +"$ \\\ \n"
         vecr = "\\left[\\begin{matrix}a_{1} \\\ a_{0} \end{matrix}\\right]"
         vecl = "\\left[\\begin{matrix}a_{2} \\\ a_{1} \end{matrix}\\right]"
         m = 1
+        nm = sp.symbols("n-1")
 
     else:
-        exercise += "$a_1 ="+str(a0)+" \\;\\;\\;\\;\\; a_2 = "+str(a1) + "$ \\\ \n"
+        exercise += "$a_1 ="+str(a0)+"; \\;\\;\\;\\;\\;  a_2 = "+str(a1) + "$ \\\ \n"
         vecr = "\\left[\\begin{matrix}a_{2} \\\ a_{1} \end{matrix}\\right]"
         vecl = "\\left[\\begin{matrix}a_{3} \\\ a_{2}\end{matrix}\\right]"
         m = 2
-
-    vec1 = sp.Matrix(["a_n","a_n-1"])
-    print(sp.latex(vec1))
-    solution += "Set up the matrix: $" + vecl + "=" + sp.latex(matrix) + "\\cdot"  + vecr +"$ \\\ \n"
+        nm = sp.symbols("n-2")
+    #vec1 = sp.Matrix(["a_n","a_n-1"])
+    solution += "Set up the matrix M: $" + vecl + "=" + sp.latex(matrix) + "\\cdot"  + vecr +"$ \\\ \n"
     vecl = "\\left[\\begin{matrix}a_{n} \\\ a_{n-1} \end{matrix}\\right]"
     solution += "General relation: $" + vecl + "=" + sp.latex(matrix) + "^{n-"+str(m)+"} \\cdot"  + vecr +"$ \\\ \n"
-    solution += "Determine eigenvalues and eigenvectors for diagonal matrix: \\\ \n"
+    solution += "Determine eigenvalues and eigenvectors: \\\ \n"
     lam= matrix.eigenvals()
     solution += "$\lambda = "+ sp.latex(lam) +" $ \\\ \n"
     eigenvecs = matrix.eigenvects()
     solution += "$"+sp.latex(eigenvecs)+"$ \\\ \n"
-
+    (T,D) = matrix.diagonalize()
+    Tinv = T.inv()
+    solution += "Determine Diagonal Matrix M and Transforation Matrix T: $M=T^{-1}MT:$ \\\ \n"
+    solution += "$D= " + sp.latex(D) + "; \\;\\;\\;\\;  T="+ sp.latex(T) +"   => T^{-1}= "+sp.latex(Tinv) + "$ \\\ \n" 
+    solution += "Calculate $M^{n-"+str(m)+"} = (TDT^{-1})^{n-"+str(m)+"} = TD^{n-"+str(m)+"}T^{-1}$ \\\ \n"  
+    
+    Dpot = D**(nm) 
+    n = sp.symbols("n")
+    Dpot2 = D**(n)*D**(-m)
+    MPoT = T*Dpot2*Tinv
+    solution += "$M^{n-"+str(m)+"} =" + sp.latex(T) + sp.latex(Dpot) + sp.latex(Tinv) +"="+sp.latex(MPoT)+"$ \\\ \n"  
+    vector = sp.Matrix([[a1],[a0]])
+    vectorsolution = MPoT*vector
+    solution += "Calculate $a_n$: \\\ \n"
+    solution += "$"+vecl +"=" + sp.latex(MPoT) + sp.latex(vector) +"=" + sp.latex(vectorsolution)+"$ \\\ \n"
     return exercise,solution
 
 
