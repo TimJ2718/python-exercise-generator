@@ -159,6 +159,22 @@ def recursion(): #Recursion equation => Make closed equation
     solution += "$"+vecl +"=" + sp.latex(MPoT) + sp.latex(vector) +"=" + sp.latex(vectorsolution)+"$ \\\ \n"
     return exercise,solution
 
+def gramschmidt(Difficulty):
+    retexercise =""
+    retsolution =""
+    n = Difficulty +2
+    num = Difficulty +1
+    vectors =  np.random.randint(-7, 7, size=(n,n))
+    print(1)
+    print(vectors)
+    print(2)
+    vecs = sp.GramSchmidt(vectors)
+    print(vecs)
+    
+
+
+    return retexercise,retsolution
+
 
 def choseexercise(exercise,Difficulty):
     retexercise = ""
@@ -174,6 +190,8 @@ def choseexercise(exercise,Difficulty):
             retexercise, retsolution = eigenvalues(Difficulty)
         case "recursion":
             retexercise, retsolution = recursion()
+        case "gramschmidt":
+            retexercise, retsolution = gramschmidt(Difficulty)
 
     return retexercise,retsolution
 
@@ -190,6 +208,10 @@ def getfullname(exercise):
         case "recursion":
             retname = "Recursion equation"
             retdescription = "Use methods of the linear algebra to determine a closed form of the recursion equation"
+        case "gramschmidt":
+            retname = "Gram schmidt"
+            retdescription = "Use the gram schmidt method to orthogonalize the given basis"
+    
     return retname, retdescription
     
 
