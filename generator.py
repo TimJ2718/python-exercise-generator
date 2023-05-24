@@ -397,7 +397,7 @@ def choseexercise(exercise,Difficulty):
             retexercise, retsolution = Sole(Difficulty)
         case "eval":
             retexercise, retsolution = eigenvalues(Difficulty)
-        case "recursion":
+        case "recursive":
             retexercise, retsolution = recursion()
         case "gramschmidt":
             retexercise, retsolution = gramschmidt(Difficulty)
@@ -418,8 +418,8 @@ def getfullname(exercise):
         case "eval":
             retname = "Eigenvalue problem"
             retdescription = "Determine the characteristical polynom, the eigenvalues and the eigenvectors:"
-        case "recursion":
-            retname = "Recursion equation"
+        case "recursive":
+            retname = "Recursive equation"
             retdescription = "Use methods of the linear algebra to determine a closed form of the recursion equation:"
         case "gramschmidt":
             retname = "Gram schmidt"
