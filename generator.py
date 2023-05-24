@@ -3,6 +3,7 @@ from numbers import Rational
 import sys
 import sympy as sp
 import numpy as np
+import random
 a,b ,c, d,e = sp.symbols("a, b, c, d,e")
 
 
@@ -27,6 +28,9 @@ def getunimodularmatrix(n):
     retmatrix =upmatrix * downmatrix
    
     return retmatrix
+
+def printnpvec(vector):
+    return sp.latex(sp.Matrix(vector))
 
 def getdiagonalmatrix(n):
     matrix = np.zeros((n,n),dtype = np.int8)
@@ -55,6 +59,21 @@ def getvarvector(n):
 def getmatrix(n,m):
     matrix = np.random.randint(-10, 10, size=(n,m))
     return sp.Matrix(matrix)
+def geteasymatrix(n):
+    while True:
+        matrix = np.random.randint(-10, 10, size=(n,n))
+        matrix = sp.Matrix(matrix)
+        if abs(matrix.det()) < 20:
+            return matrix
+
+def getcolumn(n):
+    matrix = np.random.randint(-10,10, size=(n,1))
+    return sp.Matrix(matrix)
+
+def getrow(n):
+    matrix = np.random.randint(-10,10, size=(1,n))
+    return sp.Matrix(matrix)
+
 
 def Sole(Difficulty): #System of linear equations
     
@@ -162,19 +181,112 @@ def recursion(): #Recursion equation => Make closed equation
 def gramschmidt(Difficulty):
     retexercise =""
     retsolution =""
-    n = Difficulty +2
+    n = Difficulty+2
     num = Difficulty +1
-    vectors =  np.random.randint(-7, 7, size=(n,n))
-    print(1)
-    print(vectors)
-    print(2)
-    vecs = sp.GramSchmidt(vectors)
-    print(vecs)
-    
+    genum = int(n/2)
+    index_list=np.arange(0,n,1).tolist()
+    maxnum = 4
+    vectors1 = []
+    for i in range(genum):
+        vec1 = np.zeros((n,1), dtype=np.int32)
+        vec2 = np.zeros((n,1), dtype=np.int32)
+        i1=index_list.pop(random.randrange(len(index_list)))
+        i2=index_list.pop(random.randrange(len(index_list)))
+        vec1[i1] = getrandomint(maxnum)
+        vec1[i2] = vec1[i1]
+        while vec1[i2] ==vec1[i1]:
+            vec1[i2] = getrandomint(maxnum)
+        r = [-3,-2,2,3]
+        factor = random.choice(r)
+        vec2[i1]=vec1[i2]*factor
+        vec2[i2]=-vec1[i1]*factor
+        vectors1.append(vec1)
+        vectors1.append(vec2)
 
+    vectors2 =[]
+    for i in range(num):
+        vec=vectors1.pop(random.randrange(len(vectors1)))
+        vectors2.append(vec)
+    vectors = []
+    for i in range(num):
+        vec = vectors2[i].copy()
+        r = [-4,-3,-2,2,3,4]
+        factor = random.choice(r)
+        for j in range(i):
+            vec +=factor*vectors2[j].copy()
+        vectors.append(vec)
+    vectors = np.array(vectors)
+    retexercise += "Basis: $B= \\left\\{"
+    for i in range(len(vectors)):
+        retexercise+=printnpvec(vectors[i])
+        retexercise+=","
+    #retexercise = retexercise[:-1]
+    retexercise += "\\right\\}$ \n"
 
+    newvectors = []
+    for i in range(num):
+        retsolution +="$v_{"+str(i+1)+"}=w_{"+str(i+1)+"}"
+        for j in range(i):
+            retsolution += "-\\frac{<v_"+str(j)+ ",w_{"+str(i+1)+"}>}{<v_{"+str(j+1)+"}v_{"+str(j+1)+"} >} v_{"+str(j+1)+"}"
+        retsolution += "="+printnpvec(vectors[i])
+        newvec = vectors[i]
+        for j in range(i):
+            vsquared = np.sum(newvectors[j]**2)
+            skalar = np.sum(newvectors[j]*vectors[i])
+            factor = int(skalar/vsquared)
+            newvec =newvec - factor*newvectors[j].copy()
+            retsolution+="- \\frac{"+str(skalar)+"}{"+str(vsquared)+"}"+printnpvec(newvectors[j])
+        newvectors.append(newvec)
+        if i >0:
+            retsolution += "=" + printnpvec(newvectors[i])
+        retsolution +="$\\\ \n "
     return retexercise,retsolution
 
+def inverse(difficulty):
+    retexercise =""
+    retsolution =""
+    n = difficulty+1
+    r = [-2,2]
+    factor = random.choice(r)
+    matrix = factor*getunimodularmatrix(n)
+    retexercise+="$"+ sp.latex(matrix) + "$ \n"
+    retsolution+="$"+ sp.latex(matrix.inv())+"$ \n"
+    return retexercise, retsolution
+
+def determinant(difficulty):
+    retexercise =""
+    retsolution = ""
+    n = difficulty+1
+    if n < 4:
+        matrix = geteasymatrix(n)
+        retexercise+="$"+ sp.latex(matrix) +"$ \n"
+        retsolution+="$\\det(M)="+sp.latex(matrix.det())+"$"
+
+
+    matrix = geteasymatrix(3)
+    match random.randint(0,0):
+        case 0:
+            ri1 = random.randint(0,2) #copied row
+            ri2 = random.randint(ri1+1,3) #place of row insertion
+            ci1 = random.randint(0,3) #place of row colum sertion
+            r = [-2,-1,1,2]
+            factor = random.choice(r)
+            row = matrix.row(ri1) *1# factor
+            col = getcolumn(4)
+            matrix2 = matrix.row_insert(ri2,row)
+            matrix2 = matrix2.col_insert(ci1,col)
+            print(matrix2[ri1,ci1])
+            print(matrix2[ri2,ci1])
+            detfactor = matrix[ri1,ci1]-matrix[ri2,ci1]
+            retexercise+="$"+sp.latex(matrix2) + "$ \n"
+            retsolution +="Substract row " + str(ri2+1) +" from row " +str(ri1+1) +": \\\ \n"
+            retsolution += "$\\det \\left("+sp.latex(matrix2) +"\\right) = \\det"
+            retsolution +="$"
+        case 1:
+            print("by")
+
+
+    return retexercise, retsolution
 
 def choseexercise(exercise,Difficulty):
     retexercise = ""
@@ -192,6 +304,10 @@ def choseexercise(exercise,Difficulty):
             retexercise, retsolution = recursion()
         case "gramschmidt":
             retexercise, retsolution = gramschmidt(Difficulty)
+        case "inverse":
+            retexercise, retsolution = inverse(Difficulty)
+        case "determinant":
+            retexercise, retsolution = determinant(Difficulty)
 
     return retexercise,retsolution
 
@@ -211,7 +327,12 @@ def getfullname(exercise):
         case "gramschmidt":
             retname = "Gram schmidt"
             retdescription = "Use the gram schmidt method to orthogonalize the given basis"
-    
+        case "inverse":
+            retname = "Inverse"
+            retdescription = "Calculate the inverse of the given matrix"
+        case "determinant":
+            retname = "Determinant"
+            retdescription = "Calculate the determinant of the given matrix"
     return retname, retdescription
     
 
@@ -236,7 +357,17 @@ def getExercise(exercise, Difficulty, Number):
 
 
 def printhelp():
-    print("sole;  eval; recursion")
+    printtext = "For genearating a exerecise use the command \"python generator.py exercisename \" \n"
+    printtext += "You can use -n to specify the amount of exercises and -d to select the difficulty from 1,2,3 \n"
+    printtext += "The default difficulty is 1, the default amount of exercises is also 1 \n"
+    printtext += "You can generate multiple exercises at once with \"python generator.py name1 name2 -d 3 name3 -n 2 \" \n \n"
+    printtext += "List of exercises: \n"
+    printtext += "System of linear equations: sole \n"
+    printtext += "Characteristical polynom,Eigenvalues, Eigenvector: eval \n"
+    printtext += "Recursion equation: recursion \n"
+    printtext += "Gram schmidt: gramschmidt \n"
+    printtext += "Determinant: determinant \n"
+    print(printtext)
 
 if __name__ == "__main__":
     exercisetex= ""
@@ -250,7 +381,7 @@ if __name__ == "__main__":
     for i in range(1,len(sys.argv)):
         zw = sys.argv[i]
         if zw =="-h" or zw =="--h" or zw =="-help" or zw=="--help":
-          printhelp
+          printhelp()
         elif argument ==1:
             Number = int(zw)
             argument =0
