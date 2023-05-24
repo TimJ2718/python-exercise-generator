@@ -15,8 +15,8 @@ def getrandomint(n):
     return ret
 
 def getunimodularmatrix(n):
-    upmatrix = np.zeros((n,n), dtype=np.int8)
-    downmatrix = np.zeros((n,n), dtype = np.int8)
+    upmatrix = np.zeros((n,n), dtype=np.int32)
+    downmatrix = np.zeros((n,n), dtype = np.int32)
     for i in range(n): 
         upmatrix[i][i]=1
         downmatrix[i][i]=1
@@ -33,7 +33,7 @@ def printnpvec(vector):
     return sp.latex(sp.Matrix(vector))
 
 def getdiagonalmatrix(n):
-    matrix = np.zeros((n,n),dtype = np.int8)
+    matrix = np.zeros((n,n),dtype = np.int32)
     if n <=2:
         for i in range(n):
             matrix[i][i] = getrandomint(7)
@@ -119,7 +119,7 @@ def recursion(): #Recursion equation => Make closed equation
     solution = ""
     exercise = ""
     while True:
-        matrix = np.zeros((2,2), dtype=np.int8)
+        matrix = np.zeros((2,2), dtype=np.int32)
         eval1 = getrandomint(4)
         eval2 = getrandomint(4)
         #Ensure eigenvalues are ganzzahlig
