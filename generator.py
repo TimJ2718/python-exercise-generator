@@ -253,6 +253,117 @@ def inverse(difficulty):
     retsolution+="$"+ sp.latex(matrix.inv())+"$ \n"
     return retexercise, retsolution
 
+
+def detcase1():
+    retexercise =""
+    retsolution =""
+    matrix = geteasymatrix(3)
+    ri1 = random.randint(0,2) #copied row
+    ri2 = random.randint(ri1+1,3) #place of row insertion
+    ci1 = random.randint(0,3) #place of row colum sertion
+    r = [-2,-1,1,2]
+    factor = random.choice(r)
+    row = matrix.row(ri1) * factor
+    col = getcolumn(4)
+    matrix2 = matrix.row_insert(ri2,row)
+    matrix2 = matrix2.col_insert(ci1,col)
+    detfactor = matrix2[ri2,ci1]-factor * matrix2[ri1,ci1]
+
+    matrix3 = matrix2.copy()
+    matrix3.row_del(ri2)
+
+    row = np.zeros((1,4), dtype = np.int32)
+    row[0,ci1] = detfactor
+    row = sp.Matrix(row)
+    matrix3 = matrix3.row_insert(ri2,row)
+    if random.randint(0,1):
+        retexercise+="$"+sp.latex(matrix2) + "$ \n"
+        retsolution +="Add "+str(-factor)+" times row " + str(ri1+1) +" to row " +str(ri2+1) +": \\\ \n"
+        retsolution += "$\\det \\left("+sp.latex(matrix2) +"\\right) = \\det \\left(" +sp.latex(matrix3) + "\\right) \\\ \n"
+        retsolution += "=" + str(detfactor) + "\\cdot (-1)^{"+str(ri2+1)+"+"+str(ci1+1)+"} \\cdot \\det \\left(" + sp.latex(matrix) + " \\right)="
+        retsolution += sp.latex(matrix2.det()) +"$ \n"
+    else:
+        matrix = matrix.T
+        matrix2 = matrix2.T
+        matrix3 = matrix3.T
+        retexercise+="$"+sp.latex(matrix2) + "$ \n"
+        retsolution +="Add "+str(-factor)+" times column " + str(ri1+1) +" to column " +str(ri2+1) +": \\\ \n"
+        retsolution += "$\\det \\left("+sp.latex(matrix2) +"\\right) = \\det \\left(" +sp.latex(matrix3) + "\\right) \\\ \n"
+        retsolution += "=" + str(detfactor) + "\\cdot (-1)^{"+str(ri2+1)+"+"+str(ci1+1)+"} \\cdot \\det \\left(" + sp.latex(matrix) + " \\right)="
+        retsolution += sp.latex(matrix2.det()) +"$ \n"
+    return retexercise, retsolution
+
+def detcase2():
+    retexercise = ""
+    retsolution = ""
+    while True:
+        matrix = getmatrix(4,4)
+        matrix[0,2]=0
+        matrix[0,3]=0
+        matrix[1,2]=0
+        matrix[1,3]=0
+        if abs(matrix.det())<100 and matrix.det() !=0:
+            break
+
+
+
+    if random.randint(0,1):
+        matrix=matrix.T
+        ri1 = random.randint(2,3) #row which is changed
+        ri2 = random.randint(0,1) #row which is copied for change
+    else:
+        ri1 = random.randint(0,1)
+        ri2 = random.randint(2,3)
+
+    matrix2 = matrix.copy()
+    r = [-2,-1,1,2]
+    factor = random.choice(r)
+    row=matrix2.row(ri1)+matrix2.row(ri2)*factor
+    matrix2.row_del(ri1)
+    matrix2 = matrix2.row_insert(ri1,row)
+    m1 = sp.Matrix([[matrix[0,0],matrix[0,1]],[matrix[1,0],matrix[1,1]]])
+    m2 = sp.Matrix([[matrix[2,2],matrix[2,3]],[matrix[3,2],matrix[3,3]]])
+
+    if random.randint(0,1):
+        retexercise+="$"+sp.latex(matrix2)+ "$ \n"
+        retsolution += "Add "+str(-factor)+ " times row " + str(ri2+1) + " to row " + str(ri1+1) +": \\\ \n"
+        retsolution += "$\\det \\left("+sp.latex(matrix2)+"\\right) = \\det \\left("+sp.latex(matrix) + "\\right) \\\ \n"
+        retsolution += "\\det \\left("+sp.latex(m1)+" \\right) \cdot \\det \\left("+sp.latex(m2)+" \\right) ="
+        retsolution +=sp.latex(m1.det())+"\\cdot("+sp.latex(m2.det())+")="+sp.latex(matrix2.det())+"$ \n"
+    else:
+        matrix2 = matrix2.T
+        matrix = matrix.T
+        m1 = m1.T
+        m2 = m2.T
+        retexercise+="$"+sp.latex(matrix2)+ "$ \n"
+        retsolution += "Add "+str(-factor)+ " times column " + str(ri2+1) + " to column " + str(ri1+1) +": \\\ \n"
+        retsolution += "$\\det \\left("+sp.latex(matrix2)+"\\right) = \\det \\left("+sp.latex(matrix) + "\\right) \\\ \n"
+        retsolution += "\\det \\left("+sp.latex(m1)+" \\right) \cdot \\det \\left("+sp.latex(m2)+" \\right) ="
+        retsolution +=sp.latex(m1.det())+"\\cdot("+sp.latex(m2.det())+")="+sp.latex(matrix2.det())+"$ \n"
+    return retexercise, retsolution
+
+def detcase3():
+    retexercise = ""
+    retsolution =""
+    matrix = getmatrix(4,4)
+    row_list = [0,1,2,3]
+    i1 = row_list.pop(random.randrange(len(row_list)))
+    i2 = row_list.pop(random.randrange(len(row_list)))
+    i3 = row_list.pop(random.randrange(len(row_list)))
+    r = [-1,1]
+    factor1 = random.choice(r)
+    factor2 = random.choice(r)
+    row=matrix.row(i1)*factor1+matrix.row(i2)*factor2
+    matrix.row_del(i3)
+    matrix = matrix.row_insert(i3,row)
+
+    retexercise+="$"+sp.latex(matrix)+"$ \n"
+    retsolution += "Row " +str(i3+1) +" is given by $"+str(factor1)+"\\cdot$ row " +str(i1+1) +"+ $(" +str(factor2)+ ")\\cdot$ row " +str(i2+1) +"\\\ \n"
+    retsolution +="$\\det \\left(" +sp.latex(matrix) + "\\right) = 0 \n$"
+
+    return retexercise, retsolution
+
+
 def determinant(difficulty):
     retexercise =""
     retsolution = ""
@@ -261,29 +372,15 @@ def determinant(difficulty):
         matrix = geteasymatrix(n)
         retexercise+="$"+ sp.latex(matrix) +"$ \n"
         retsolution+="$\\det(M)="+sp.latex(matrix.det())+"$"
-
-
-    matrix = geteasymatrix(3)
-    match random.randint(0,0):
+        return retexercise, retsolution
+    match random.randint(0,2):
         case 0:
-            ri1 = random.randint(0,2) #copied row
-            ri2 = random.randint(ri1+1,3) #place of row insertion
-            ci1 = random.randint(0,3) #place of row colum sertion
-            r = [-2,-1,1,2]
-            factor = random.choice(r)
-            row = matrix.row(ri1) *1# factor
-            col = getcolumn(4)
-            matrix2 = matrix.row_insert(ri2,row)
-            matrix2 = matrix2.col_insert(ci1,col)
-            print(matrix2[ri1,ci1])
-            print(matrix2[ri2,ci1])
-            detfactor = matrix[ri1,ci1]-matrix[ri2,ci1]
-            retexercise+="$"+sp.latex(matrix2) + "$ \n"
-            retsolution +="Substract row " + str(ri2+1) +" from row " +str(ri1+1) +": \\\ \n"
-            retsolution += "$\\det \\left("+sp.latex(matrix2) +"\\right) = \\det"
-            retsolution +="$"
+            return detcase1()
         case 1:
-            print("by")
+            return detcase2()
+        case 2:
+            return detcase3()
+
 
 
     return retexercise, retsolution
@@ -317,22 +414,22 @@ def getfullname(exercise):
     match exercise:
         case "sole":
             retname = "System of linear equations"
-            retdescription = "Solve the linear equations."
+            retdescription = "Solve the linear equations:"
         case "eval":
             retname = "Eigenvalue problem"
-            retdescription = "Determine the characteristical polynom, the eigenvalues and the eigenvectors"    
+            retdescription = "Determine the characteristical polynom, the eigenvalues and the eigenvectors:"
         case "recursion":
             retname = "Recursion equation"
-            retdescription = "Use methods of the linear algebra to determine a closed form of the recursion equation"
+            retdescription = "Use methods of the linear algebra to determine a closed form of the recursion equation:"
         case "gramschmidt":
             retname = "Gram schmidt"
-            retdescription = "Use the gram schmidt method to orthogonalize the given basis"
+            retdescription = "Use the gram schmidt method to orthogonalize the given basis:"
         case "inverse":
             retname = "Inverse"
-            retdescription = "Calculate the inverse of the given matrix"
+            retdescription = "Calculate the inverse of the given matrix:"
         case "determinant":
             retname = "Determinant"
-            retdescription = "Calculate the determinant of the given matrix"
+            retdescription = "Calculate the determinant of the given matrix:"
     return retname, retdescription
     
 
