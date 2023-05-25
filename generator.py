@@ -227,7 +227,7 @@ def gramschmidt(Difficulty):
     for i in range(num):
         retsolution +="$v_{"+str(i+1)+"}=w_{"+str(i+1)+"}"
         for j in range(i):
-            retsolution += "-\\frac{<v_"+str(j)+ ",w_{"+str(i+1)+"}>}{<v_{"+str(j+1)+"}v_{"+str(j+1)+"} >} v_{"+str(j+1)+"}"
+            retsolution += "-\\frac{<v_"+str(j+1)+ ",w_{"+str(i+1)+"}>}{<v_{"+str(j+1)+"}v_{"+str(j+1)+"} >} v_{"+str(j+1)+"}"
         retsolution += "="+printnpvec(vectors[i])
         newvec = vectors[i]
         for j in range(i):
