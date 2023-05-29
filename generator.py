@@ -385,6 +385,20 @@ def determinant(difficulty):
 
     return retexercise, retsolution
 
+def polynomdivison(Difficulty):
+    exercise = ""
+    solution = ""
+    x = sp.symbols("x")
+    poly1 = sp.poly(x + getrandomint(5))
+    poly2 = getrandomint(10)
+    for i in range(1,Difficulty+1):
+        poly2 = poly2 + sp.poly(x**i*getrandomint(5))
+    poly3 = poly2 * poly1
+    exercise += "$ (" + sp.latex(poly3.as_expr()) + ") \\; / \\; (" + sp.latex(poly1.as_expr()) +")=$ \n"
+    solution += "$" +sp.latex(poly2.as_expr())+" $ \n"
+    return exercise,solution
+
+
 def choseexercise(exercise,Difficulty):
     retexercise = ""
     retsolution =""
@@ -405,6 +419,8 @@ def choseexercise(exercise,Difficulty):
             retexercise, retsolution = inverse(Difficulty)
         case "determinant":
             retexercise, retsolution = determinant(Difficulty)
+        case "polynomdivision":
+            retexercise, retsolution = polynomdivison(Difficulty)
 
     return retexercise,retsolution
 
@@ -430,6 +446,10 @@ def getfullname(exercise):
         case "determinant":
             retname = "Determinant"
             retdescription = "Calculate the determinant of the given matrix:"
+        case "polynomdivision":
+            retname = "Polynom disivion"
+            retdescription = "Calculate the polynom:"
+
     return retname, retdescription
     
 
@@ -454,16 +474,17 @@ def getExercise(exercise, Difficulty, Number):
 
 
 def printhelp():
-    printtext = "For genearating a exerecise use the command \"python generator.py exercisename \" \n"
+    printtext = "For genearating an exerecise use the command \"python generator.py exercisename \" \n"
     printtext += "You can use -n to specify the amount of exercises and -d to select the difficulty from 1,2,3 \n"
     printtext += "The default difficulty is 1, the default amount of exercises is also 1 \n"
-    printtext += "You can generate multiple exercises at once with \"python generator.py name1 name2 -d 3 name3 -n 2 \" \n \n"
+    printtext += "You can generate multiple different exercises at once by just adding them in the command line. e.g. \"python generator.py name1 name2 -d 3 name3 -n 2 \" \n \n"
     printtext += "List of exercises: \n"
     printtext += "System of linear equations: sole \n"
     printtext += "Characteristical polynom,Eigenvalues, Eigenvector: eval \n"
     printtext += "Recursion equation: recursion \n"
     printtext += "Gram schmidt: gramschmidt \n"
     printtext += "Determinant: determinant \n"
+    printtext += "Polynom division: polynomdivision \n"
     print(printtext)
 
 if __name__ == "__main__":
