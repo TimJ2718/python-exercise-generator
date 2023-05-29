@@ -481,7 +481,7 @@ def printhelp():
     printtext += "List of exercises: \n"
     printtext += "System of linear equations: sole \n"
     printtext += "Characteristical polynom,Eigenvalues, Eigenvector: eval \n"
-    printtext += "Recursion equation: recursion \n"
+    printtext += "Recursive equation: recursive \n"
     printtext += "Gram schmidt: gramschmidt \n"
     printtext += "Determinant: determinant \n"
     printtext += "Polynom division: polynomdivision \n"
