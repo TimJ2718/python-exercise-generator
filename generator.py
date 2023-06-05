@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from math import sqrt
 from numbers import Rational
 import sys
 import sympy as sp
@@ -7,12 +8,32 @@ import random
 a,b ,c, d,e = sp.symbols("a, b, c, d,e")
 
 
+def dotproduct(v1,v2):
+    ret = v1.T*v2
+    return ret[0,0]
 
 def getrandomint(n):
     ret = 0
     while ret ==0:
         ret = np.random.randint(-n,n)
     return ret
+
+
+def getuppertriangular(n):
+    upmatrix = np.zeros((n,n), dtype=np.int32)
+    for i in range(n): 
+        upmatrix[i][i]=1
+        for j in range(i): 
+            upmatrix[j][i]=  getrandomint(9)
+    return upmatrix
+
+def getlowertriangular(n):
+    lowmatrix = np.zeros((n,n), dtype=np.int32)
+    for i in range(n): 
+        lowmatrix[i][i]=1
+        for j in range(i): 
+            lowmatrix[i][j]=  getrandomint(9)
+    return lowmatrix
 
 def getunimodularmatrix(n):
     upmatrix = np.zeros((n,n), dtype=np.int32)
@@ -398,6 +419,88 @@ def polynomdivison(Difficulty):
     solution += "$" +sp.latex(poly2.as_expr())+" $ \n"
     return exercise,solution
 
+def gramschmidtothonormal(Difficulty):
+    retexercise =""
+    retsolution =""
+    n = Difficulty+2
+    num = Difficulty +1
+    genum = int(n/2)
+    index_list=np.arange(0,n,1).tolist()
+    maxnum = 4
+    vectors1 = []
+    for i in range(genum):
+        vec1 = np.zeros((n,1), dtype=np.int32)
+        vec2 = np.zeros((n,1), dtype=np.int32)
+        i1=index_list.pop(random.randrange(len(index_list)))
+        i2=index_list.pop(random.randrange(len(index_list)))
+        vec1[i1] = getrandomint(maxnum)
+        vec1[i2] = vec1[i1]
+        while vec1[i2] ==vec1[i1]:
+            vec1[i2] = getrandomint(maxnum)
+        r = [-3,-2,2,3]
+        factor = random.choice(r)
+        vec2[i1]=vec1[i2]*factor
+        vec2[i2]=-vec1[i1]*factor
+        vectors1.append(vec1)
+        vectors1.append(vec2)
+
+    vectors2 =[]
+    for i in range(num):
+        vec=vectors1.pop(random.randrange(len(vectors1)))
+        vectors2.append(vec)
+    vectors = []
+    for i in range(num):
+        vec = vectors2[i].copy()
+        r = [-4,-3,-2,2,3,4]
+        factor = random.choice(r)
+        for j in range(i):
+            vec +=factor*vectors2[j].copy()
+        vectors.append(vec)
+    vectors = np.array(vectors)
+    retexercise += "Basis: $B= \\left\\{"
+    for i in range(len(vectors)):
+        retexercise+=printnpvec(vectors[i])
+        retexercise+=","
+    #retexercise = retexercise[:-1]
+    retexercise += "\\right\\}$ \n"
+
+    newvectors = []
+    for i in range(num):
+        retsolution +="$\\tilde{v}_{"+str(i+1)+"}=w_{"+str(i+1)+"}"
+        for j in range(i):
+            retsolution += "-<v_"+str(j+1)+ ",w_{"+str(i+1)+"}> v_{"+str(j+1)+"}"
+        retsolution += "="+printnpvec(vectors[i])
+        newvec = vectors[i]
+        for j in range(i):
+            factor = dotproduct(newvectors[j],vectors[i])
+            newvec =newvec - factor*newvectors[j].copy()
+            retsolution+="- ("+sp.latex(factor)+") \\cdot"+printnpvec(newvectors[j])
+        
+        if i >0:
+            retsolution += "=" + printnpvec(newvec)
+        retsolution +="$\\\ \n "
+        retsolution += "$ v_{"+str(i+1)+"} = \\dfrac{\\tilde{v}_"+str(i+1)+"}{\\sqrt{< \\tilde{v}_{"+str(i+1)+"}, \\tilde{v}_{"+str(i+1)+ "} >}} "
+        newvec = sp.Matrix(newvec)
+        newvec = newvec / sp.sqrt(dotproduct(newvec,newvec))
+        newvectors.append(newvec)
+        retsolution +="="+sp.latex(newvec) +" $ \\\ \n"
+    return retexercise,retsolution
+
+
+
+
+
+
+def QRdecomposition(Difficulty):
+    retexercise = ""
+    retsolution = ""
+    n = Difficulty+1
+    T = getuppertriangular(n)
+    print(T)
+    return retexercise,retsolution
+
+
+
 
 def choseexercise(exercise,Difficulty):
     retexercise = ""
@@ -421,6 +524,10 @@ def choseexercise(exercise,Difficulty):
             retexercise, retsolution = determinant(Difficulty)
         case "polynomdivision":
             retexercise, retsolution = polynomdivison(Difficulty)
+        case "gramschmidtothonormal":
+            retexercise, retsolution = gramschmidtothonormal(Difficulty)
+        case "QR":
+            retexercise, retsolution = QRdecomposition(Difficulty)
 
     return retexercise,retsolution
 
@@ -439,7 +546,7 @@ def getfullname(exercise):
             retdescription = "Use methods of the linear algebra to determine a closed form of the recursion equation:"
         case "gramschmidt":
             retname = "Gram schmidt"
-            retdescription = "Use the gram schmidt method to orthogonalize the given basis:"
+            retdescription = "Use the gram schmidt orthogonalization method to orthogonalize the given basis:"
         case "inverse":
             retname = "Inverse"
             retdescription = "Calculate the inverse of the given matrix:"
@@ -449,6 +556,13 @@ def getfullname(exercise):
         case "polynomdivision":
             retname = "Polynom disivion"
             retdescription = "Calculate the polynom:"
+        case "gramschmidtothonormal":
+            retname = "Gram Schmidt Othonormalization"
+            retdescription = "Use the gram schmidt orthonormalization method to orthonormalize the given basis:"
+        case "QR":
+            retname = "QR decomposition"
+            retdescription = "Decompose the given matrix A in an orthgonal matrix Q and an upper triangular matrix R: A = QR"
+
 
     return retname, retdescription
     
@@ -482,9 +596,11 @@ def printhelp():
     printtext += "System of linear equations: sole \n"
     printtext += "Characteristical polynom,Eigenvalues, Eigenvector: eval \n"
     printtext += "Recursive equation: recursive \n"
-    printtext += "Gram schmidt: gramschmidt \n"
+    printtext += "Gram schmidt orthogonalization: gramschmidt \n"
     printtext += "Determinant: determinant \n"
     printtext += "Polynom division: polynomdivision \n"
+    printtext += "Gram schmidt othonormalization: gramschmidtothonormal \n"
+    printtext += "QR decomposition: QR \n"
     print(printtext)
 
 if __name__ == "__main__":
