@@ -13,6 +13,7 @@ The numpy and sympy python packages are needed to run the program.
 5. Determinant: Calculation of the determinant of a matrix.
 6. Polynom division
 7. Gram schmidt orthonormalization: Orthonormalization of vector basis with the gram schmidt orthonormalization process.
+8. QR Decompositon: Decompose a Matrix in the product of an orthogonal matrix and an upper triangular matrix.
 
 ## Generating exercises
 Use "python generator.py -h" for an explanation.
