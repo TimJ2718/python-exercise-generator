@@ -4,6 +4,9 @@
 A python program for generating linear algebra exercises and their solutions.
 A latex file is created.
 The numpy and sympy python packages are needed to run the program.
+Explanations on how to solve these tasks can be found in this git repo: https://github.com/TimJ2718/linear_algebra
+ 
+ 
 
 ## Supported exercises
 1. Eigenvalue problems: Characteristical polynom, eigenvalues, eigenvectors.
