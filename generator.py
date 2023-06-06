@@ -25,7 +25,7 @@ def getuppertriangular(n):
         upmatrix[i][i]=1
         for j in range(i): 
             upmatrix[j][i]=  getrandomint(9)
-    return upmatrix
+    return sp.Matrix(upmatrix)
 
 def getlowertriangular(n):
     lowmatrix = np.zeros((n,n), dtype=np.int32)
@@ -33,7 +33,7 @@ def getlowertriangular(n):
         lowmatrix[i][i]=1
         for j in range(i): 
             lowmatrix[i][j]=  getrandomint(9)
-    return lowmatrix
+    return sp.Matrix(lowmatrix)
 
 def getunimodularmatrix(n):
     upmatrix = np.zeros((n,n), dtype=np.int32)
@@ -495,8 +495,82 @@ def QRdecomposition(Difficulty):
     retexercise = ""
     retsolution = ""
     n = Difficulty+1
-    T = getuppertriangular(n)
-    print(T)
+    TMatrix = getuppertriangular(n)
+    genum = int(n/2)
+    index_list=np.arange(0,n,1).tolist()
+    maxnum = 4
+    vectors1 = []
+
+
+    for i in range(genum):
+        vec1 = np.zeros((n,1), dtype=np.int32)
+        vec2 = np.zeros((n,1), dtype=np.int32)
+        i1=index_list.pop(random.randrange(len(index_list)))
+        i2=index_list.pop(random.randrange(len(index_list)))
+        vec1[i1] = getrandomint(maxnum)
+        vec1[i2] = vec1[i1]
+        while vec1[i2] ==vec1[i1]:
+            vec1[i2] = getrandomint(maxnum)
+        r = [-3,-2,2,3]
+        factor = random.choice(r)
+        vec2[i1]=vec1[i2] * factor
+        vec2[i2]=-vec1[i1] * factor
+        vec1 = sp.Matrix(vec1)
+        vec2 = sp.Matrix(vec2)
+        vectors1.append(vec1)
+        vectors1.append(vec2)
+
+    if (n % 2) !=0: #if odd
+        vec = np.zeros((n,1),dtype = np.int32)
+        index = index_list.pop(0)
+        vec[index] = 1
+        vec = sp.Matrix(vec)
+        vectors1.append(vec)
+    QMatrix = sp.Matrix(vectors1[0])
+
+
+    for i in range(1,len(vectors1)):
+        QMatrix = QMatrix.col_insert(0, vectors1[i])
+
+
+
+    QMatrix = QMatrix.T
+    StartMatrix = QMatrix * TMatrix
+    retexercise += "$"
+    retexercise += sp.latex(StartMatrix)
+    retexercise += "$ \n"
+
+    newvectors = []
+    retsolution += "Use the gram schmidt orthonormalization process to orthonormalize the colunm vectors of the given matrix: \\\ \n"
+    for i in range(n):
+        retsolution +="$\\tilde{v}_{"+str(i+1)+"}=w_{"+str(i+1)+"}"
+        for j in range(i):
+            retsolution += "-<v_"+str(j+1)+ ",w_{"+str(i+1)+"}> v_{"+str(j+1)+"}"
+        retsolution += "="+ sp.latex(StartMatrix.col(i))
+        newvec = StartMatrix.col(i)
+        for j in range(i):
+            factor = dotproduct(newvectors[j],StartMatrix.col(i))
+            newvec =newvec - factor*newvectors[j].copy()
+            retsolution+="- ("+sp.latex(factor)+") \\cdot"+printnpvec(newvectors[j])
+
+        if i >0:
+            retsolution += "=" + printnpvec(newvec)
+        retsolution +="$\\\ \n "
+        retsolution += "$ v_{"+str(i+1)+"} = \\dfrac{\\tilde{v}_"+str(i+1)+"}{\\sqrt{< \\tilde{v}_{"+str(i+1)+"}, \\tilde{v}_{"+str(i+1)+ "} >}} "
+        newvec = sp.Matrix(newvec)
+        newvec = newvec / sp.sqrt(dotproduct(newvec,newvec))
+        newvectors.append(newvec)
+        retsolution +="="+sp.latex(newvec) +" $ \\\ \n"
+
+    Q = newvectors[0]
+    for i in range(1,len(newvectors)):
+        Q = Q.col_insert(i,newvectors[i])
+
+
+
+    retsolution += "=> $ Q ="+ sp.latex(Q) +"$ \\\ \n"
+    retsolution += "$A = QR => R = Q^TA = "+ sp.latex(Q.T) + sp.latex(StartMatrix) +"="+ sp.latex(Q.T*StartMatrix) + "$ \\\ \n"
+
     return retexercise,retsolution
 
 
