@@ -17,6 +17,7 @@ Explanations on how to solve these tasks can be found in this git repo: https://
 6. Polynom division
 7. Gram schmidt orthonormalization: Orthonormalization of vector basis with the gram schmidt orthonormalization process.
 8. QR Decompositon: Decompose a Matrix in the product of an orthogonal matrix and an upper triangular matrix.
+9. Basis transformation: Write a linear map (matrix) in an alternative basis.
 
 ## Generating exercises
 Use "python generator.py -h" for an explanation.
