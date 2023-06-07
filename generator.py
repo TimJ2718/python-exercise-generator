@@ -8,6 +8,30 @@ import random
 a,b ,c, d,e = sp.symbols("a, b, c, d,e")
 
 
+
+def CombineTwoMatrices(M1,M2):
+    n1 = M1.shape[1]
+    n2 = M2.shape[1]
+    rettex ="\\left[\\begin{array}{"
+    for i in range(n1):
+        rettex += "c"
+
+    rettex += "|"
+    for i in range(n2):
+        rettex += "c"
+    rettex += "} \n"
+
+    for i in range(M1.shape[0]):
+        for j in range(n1):
+            rettex += sp.latex(M1[i,j]) + " &"
+        for j in range(n2):
+            rettex += sp.latex(M2[i,j]) + " &"
+        rettex = rettex[:-1] #Remove last &
+        rettex += "\\\ \n"
+
+    rettex += "\\end{array}\\right]"
+    return rettex
+
 def dotproduct(v1,v2):
     ret = v1.T*v2
     return ret[0,0]
@@ -47,6 +71,21 @@ def getunimodularmatrix(n):
     upmatrix = sp.Matrix(upmatrix)
     downmatrix = sp.Matrix(downmatrix)
     retmatrix =upmatrix * downmatrix
+
+def getspecificunimodularmatrix(n,max):
+    upmatrix = np.zeros((n,n), dtype=np.int32)
+    downmatrix = np.zeros((n,n), dtype = np.int32)
+    for i in range(n):
+        upmatrix[i][i]=1
+        downmatrix[i][i]=1
+        for j in range(i):
+            upmatrix[i][j]=  getrandomint(max)
+            downmatrix[j][i] = getrandomint(max)
+    upmatrix = sp.Matrix(upmatrix)
+    downmatrix = sp.Matrix(downmatrix)
+    retmatrix =upmatrix * downmatrix
+
+
    
     return retmatrix
 
@@ -80,6 +119,11 @@ def getvarvector(n):
 def getmatrix(n,m):
     matrix = np.random.randint(-10, 10, size=(n,m))
     return sp.Matrix(matrix)
+
+def getspecificmatrix(n,m,max):
+    matrix = np.random.randint(-max, max, size=(n,m))
+    return sp.Matrix(matrix)
+
 def geteasymatrix(n):
     while True:
         matrix = np.random.randint(-10, 10, size=(n,n))
@@ -574,6 +618,84 @@ def QRdecomposition(Difficulty):
     return retexercise,retsolution
 
 
+def BasisTransformation(Difficulty):
+    retexercise =""
+    retsolution =""
+    match Difficulty:
+        case 1:
+            n1 = 2
+            n2 = 2
+        case 2:
+            if random.randint(0,1):
+                n1 = 2
+                n2 = 3
+            else:
+                n1 = 3
+                n2 = 2
+        case _:
+            n1 = 3
+            n2 = 3
+
+
+
+    B1 = getspecificunimodularmatrix(n1,5-n1)
+    B2 = getspecificunimodularmatrix(n1,5-n1)
+    C1 = getspecificunimodularmatrix(n2,5-n2)
+    C2 = getspecificunimodularmatrix(n2,5-n2)
+    retexercise += "$B= \\left\\{"
+    for i in range(n1):
+        retexercise+=sp.latex(B1.col(i))
+        retexercise+=","
+    retexercise = retexercise[:-1]
+    retexercise += "\\right\\}$; \;\;\;\; \n"
+    retexercise += "$C= \\left\\{"
+    for i in range(n2):
+        retexercise+=sp.latex(C1.col(i))
+        retexercise+=","
+    retexercise = retexercise[:-1]
+    retexercise += "\\right\\}$  \\\ \n"
+
+    retexercise += "$\\tilde{B}= \\left\\{"
+    for i in range(n1):
+        retexercise+=sp.latex(B2.col(i))
+        retexercise+=","
+    retexercise = retexercise[:-1]
+    retexercise += "\\right\\}$; \;\;\;\; \n"
+    retexercise += "$\\tilde{C}= \\left\\{"
+    for i in range(n2):
+        retexercise+=sp.latex(C2.col(i))
+        retexercise+=","
+    retexercise = retexercise[:-1]
+    retexercise += "\\right\\}$ \\\ \n"
+
+    MBC = getspecificmatrix(n2,n1,7-Difficulty)
+    retexercise += "$M^B_C = " + sp.latex(MBC) + "$ \n"
+    retsolution += "The linear map in the new basis is given by: \\\ \n"
+    retsolution += "$M^{\\tilde{B}}_{\\tilde{C}} = T^{C}_{\\tilde{C}} \\cdot  M^{B}_{C} \\cdot T^{\\tilde{B}}_{B}$ \\\ \n"
+    retsolution += "Calculate basistransformation matrix $T^{C}_{\\tilde{C}}$: \\\ \n"
+    retsolution += "$" +CombineTwoMatrices(C1,C2) +"$ \n"
+
+    #C1 -> C2 Basis Transformation
+    TC = (C2.inv() * C1)
+    unityC = sp.eye(n2)
+    retsolution += "$ \\rightarrow " + CombineTwoMatrices(TC,unityC) + " \\rightarrow T^C_{\\tilde{C}} = " + sp.latex(TC) +"$ \\\ \n"
+
+
+    retsolution += "Calculate basistransformation matrix $T^{\\tilde{B}}_{B}$: \\\ \n"
+    retsolution += "$" +CombineTwoMatrices(B2,B1) +"$ \n"
+    #B2 -> B1 Basis Transformation
+    TB = (B1.inv() * B2)
+    unityB = sp.eye(n1)
+    retsolution += "$ \\rightarrow " + CombineTwoMatrices(TB,unityB) + " \\rightarrow T^{\\tilde{B}}_B = " + sp.latex(TB) +"$ \\\ \n"
+    retsolution += "Calculate matrix in new basis: \\\ \n"
+    retsolution += "$M^{\\tilde{B}}_{\\tilde{C}}="
+    retsolution += sp.latex(TC)+ sp.latex(MBC) + sp.latex(TB) +" = " + sp.latex(TC * MBC *TB)
+    retsolution += "$ \n"
+
+
+
+
+    return retexercise,retsolution
 
 
 def choseexercise(exercise,Difficulty):
@@ -602,6 +724,11 @@ def choseexercise(exercise,Difficulty):
             retexercise, retsolution = gramschmidtothonormal(Difficulty)
         case "QR":
             retexercise, retsolution = QRdecomposition(Difficulty)
+        case "BasisTransformation":
+            retexercise, retsolution = BasisTransformation(Difficulty)
+        case _:
+            print("The exercise: " + exercise + " is not known use -h to get a list of all exercises. \n")
+
 
     return retexercise,retsolution
 
@@ -636,7 +763,12 @@ def getfullname(exercise):
         case "QR":
             retname = "QR decomposition"
             retdescription = "Decompose the given matrix A in an orthgonal matrix Q and an upper triangular matrix R: A = QR"
+        case "BasisTransformation":
+            retname = "Basis Transformation"
+            retdescription = "Express the given linear map $M^B_C: B \\rightarrow C$ in the new basis $\\tilde{B}$ and $\\tilde{C}$ as $M^{\\tilde{B}}_{\\tilde{C}}: \\tilde{B} \\rightarrow \\tilde{C}$"
 
+        case _:
+            retdescription = "The exercise does not exist or is not fully implemented!"
 
     return retname, retdescription
     
@@ -675,6 +807,7 @@ def printhelp():
     printtext += "Polynom division: polynomdivision \n"
     printtext += "Gram schmidt othonormalization: gramschmidtothonormal \n"
     printtext += "QR decomposition: QR \n"
+    printtext += "Basis transformation, express a matrix in a different basis: BasisTransformation \n"
     print(printtext)
 
 if __name__ == "__main__":
@@ -688,6 +821,12 @@ if __name__ == "__main__":
     argument = 0
     for i in range(1,len(sys.argv)):
         zw = sys.argv[i]
+
+
+        if argument !=0 and not zw.isdigit():
+            argument = 0
+            print("Value after parameter is missing, assume standard value! \n")
+
         if zw =="-h" or zw =="--h" or zw =="-help" or zw=="--help":
           printhelp()
         elif argument ==1:
