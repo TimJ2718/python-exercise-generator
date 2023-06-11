@@ -70,7 +70,7 @@ def getunimodularmatrix(n):
             downmatrix[j][i] = getrandomint(4)
     upmatrix = sp.Matrix(upmatrix)
     downmatrix = sp.Matrix(downmatrix)
-    retmatrix =upmatrix * downmatrix
+    return upmatrix * downmatrix
 
 def getspecificunimodularmatrix(n,max):
     upmatrix = np.zeros((n,n), dtype=np.int32)
